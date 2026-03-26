@@ -11,7 +11,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
     )
 
-    APP_NAME: str = "Job Scrapper"
+    APP_NAME: str = "Saas Backend System"
     APP_DESCRIPTION: str = (
         "A digital system where you can shape your restaurant/businesses"
     )

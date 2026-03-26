@@ -10,3 +10,5 @@ wheels/
 .venv
 
 .env.compose
+.env.dev
+.env.production
