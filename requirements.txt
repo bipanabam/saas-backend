@@ -1,0 +1,8 @@
+fastapi[standard]>=0.135.2
+uvicorn>=0.30.0
+pydantic>=2.7.0
+python-dotenv==1.2.2
+sqlalchemy[asyncio]==2.0.48
+asyncpg==0.31.0
+alembic==1.18.4
+psycopg[binary]
