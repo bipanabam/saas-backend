@@ -23,7 +23,7 @@ jobs:
           pip install black ruff mypy pydantic pydantic-settings
 
       - name: Run Black
-        run: black --check .
+        run: black --check --diff .
 
       - name: Run Ruff
         run: ruff check app

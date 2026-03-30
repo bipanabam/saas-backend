@@ -1,7 +1,7 @@
 from collections.abc import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, LoaderCriteriaOption, with_loader_criteria
 
 from app.core.config import config
 
@@ -42,3 +42,13 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         except:
             await session.rollback()
             raise
+
+
+def tenant_filter_option() -> LoaderCriteriaOption:
+    """Returns a SQLAlchemy loader option to filter queries by the current tenant ID."""
+    from app.core.tenant_context import get_current_tenant_id
+    from app.models import Tenant
+
+    return with_loader_criteria(
+        Tenant, lambda cls: cls.id == get_current_tenant_id(), include_aliases=True
+    )
