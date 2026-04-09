@@ -2,13 +2,7 @@
 import enum
 import uuid
 
-from sqlalchemy import (
-    Boolean,
-    ForeignKey,
-    Index,
-    String,
-    UniqueConstraint,
-)
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -16,6 +10,7 @@ from app.models.base import BaseMixin
 
 
 class RoleEnum(str, enum.Enum):
+    OWNER = "owner"
     ADMIN = "admin"
     MANAGER = "manager"
     STAFF = "staff"
@@ -94,5 +89,13 @@ class User(Base, BaseMixin):
 
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    last_login_at: Mapped[DateTime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    avatar_url: Mapped[str] = mapped_column(String(500), nullable=True)
 
     memberships = relationship("Membership", back_populates="user")

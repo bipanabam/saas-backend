@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
-from app.core.config import config
+from app.api.v1.endpoints.auth import router as auth_router
+from app.core.config import settings
 from app.core.logging import setup_logging
 
 setup_logging()
@@ -16,11 +17,13 @@ setup_logging()
 
 
 app = FastAPI(
-    title=config.APP_NAME,
-    description=config.APP_DESCRIPTION,
+    title=settings.APP_NAME,
+    description=settings.APP_DESCRIPTION,
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+app.include_router(auth_router, prefix=settings.API_PREFIX)
 
 
 @app.get("/healthz")

@@ -3,9 +3,9 @@ from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, LoaderCriteriaOption, with_loader_criteria
 
-from app.core.config import config
+from app.core.config import settings
 
-DATABASE_URL = config.DATABASE_URL
+DATABASE_URL = settings.DATABASE_URL
 
 engine = create_async_engine(
     DATABASE_URL,
@@ -14,8 +14,9 @@ engine = create_async_engine(
 )
 
 # produces/generates new async sessions for queries
-async_session_factory = async_sessionmaker(
+AsyncSessionLocal = async_sessionmaker(
     bind=engine,
+    class_=AsyncSession,
     expire_on_commit=False,
 )
 
@@ -32,16 +33,9 @@ async def init_db() -> None:
         )  # create all tables in the database
 
 
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    """Dependency for async DB operations"""
-    async with async_session_factory() as session:
-        # Creates a new async session, automatically closed at the end.
-        try:
-            yield session
-            await session.commit()
-        except:
-            await session.rollback()
-            raise
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    async with AsyncSessionLocal() as session:
+        yield session
 
 
 def tenant_filter_option() -> LoaderCriteriaOption:

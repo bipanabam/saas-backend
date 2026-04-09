@@ -25,7 +25,7 @@ class Subscription(Base):
     __tablename__ = "subscriptions"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, index=True
+        UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4
     )
     tenant_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("tenants.id"))
 
@@ -36,10 +36,12 @@ class Subscription(Base):
         Enum(SubscriptionStatus, name="subscription_status_enum"),
         default=SubscriptionStatus.TRIAL,
     )
-    start_date: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
-    end_date: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
+    start_date: Mapped[DateTime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    end_date: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=True)
 
-    auto_renew: Mapped[bool] = mapped_column(Boolean, default=True)
+    auto_renew: Mapped[bool] = mapped_column(Boolean, default=False)
 
     tenant = relationship("Tenant", back_populates="subscriptions")
 
@@ -48,20 +50,32 @@ class Tenant(Base):
     __tablename__ = "tenants"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, index=True
+        UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4
     )
     name: Mapped[str] = mapped_column(
         String(255), unique=True, index=True, nullable=False
     )
-    slug: Mapped[str] = mapped_column(
+
+    domain: Mapped[str] = mapped_column(
         String(60), unique=True, index=True, nullable=False
-    )  # domain name for tenant
+    )
+    logo_url: Mapped[str] = mapped_column(String(500), nullable=True)
+
+    # owner_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+
+    billing_email: Mapped[str] = mapped_column(String(255), nullable=True)
+
+    timezone: Mapped[str] = mapped_column(String(50), default="UTC")
 
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     created_at: Mapped[DateTime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
     )
+
+    deleted_at: Mapped[DateTime] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )  # soft delete
 
     subscriptions: Mapped[list["Subscription"]] = relationship(
         "Subscription", back_populates="tenant"

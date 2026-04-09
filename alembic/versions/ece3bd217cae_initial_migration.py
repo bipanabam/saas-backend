@@ -1,8 +1,8 @@
-"""Initial migration
+"""Initial Migration
 
-Revision ID: 5b3d49d47c9f
+Revision ID: ece3bd217cae
 Revises: 
-Create Date: 2026-03-29 19:24:44.653072
+Create Date: 2026-04-09 20:25:48.209958
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 from alembic import op  # type: ignore
 
 # revision identifiers, used by Alembic.
-revision: str = "5b3d49d47c9f"
+revision: str = "ece3bd217cae"
 down_revision: str | Sequence[str] | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -47,7 +47,10 @@ def upgrade() -> None:
         "tenants",
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column("name", sa.String(length=255), nullable=False),
-        sa.Column("slug", sa.String(length=60), nullable=False),
+        sa.Column("domain", sa.String(length=60), nullable=False),
+        sa.Column("logo_url", sa.String(length=500), nullable=True),
+        sa.Column("billing_email", sa.String(length=255), nullable=True),
+        sa.Column("timezone", sa.String(length=50), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column(
             "created_at",
@@ -55,17 +58,21 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
+        sa.Column("deleted_at", sa.DateTime(), nullable=True),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.create_index(op.f("ix_tenants_domain"), "tenants", ["domain"], unique=True)
     op.create_index(op.f("ix_tenants_id"), "tenants", ["id"], unique=False)
     op.create_index(op.f("ix_tenants_name"), "tenants", ["name"], unique=True)
-    op.create_index(op.f("ix_tenants_slug"), "tenants", ["slug"], unique=True)
     op.create_table(
         "users",
         sa.Column("email", sa.String(length=255), nullable=False),
         sa.Column("username", sa.String(length=255), nullable=False),
         sa.Column("hashed_password", sa.String(length=255), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
+        sa.Column("is_verified", sa.Boolean(), nullable=False),
+        sa.Column("last_login_at", sa.DateTime(), nullable=True),
+        sa.Column("avatar_url", sa.String(length=500), nullable=True),
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column(
             "created_at",
@@ -209,9 +216,9 @@ def downgrade() -> None:
     op.drop_table("roles")
     op.drop_index(op.f("ix_users_email"), table_name="users")
     op.drop_table("users")
-    op.drop_index(op.f("ix_tenants_slug"), table_name="tenants")
     op.drop_index(op.f("ix_tenants_name"), table_name="tenants")
     op.drop_index(op.f("ix_tenants_id"), table_name="tenants")
+    op.drop_index(op.f("ix_tenants_domain"), table_name="tenants")
     op.drop_table("tenants")
     op.drop_table("permissions")
     # ### end Alembic commands ###

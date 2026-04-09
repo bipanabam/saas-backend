@@ -1,8 +1,11 @@
 fastapi[standard]>=0.135.2
 uvicorn>=0.30.0
 pydantic>=2.7.0
-python-dotenv==1.2.2
-sqlalchemy[asyncio]==2.0.48
-asyncpg==0.31.0
-alembic==1.18.4
-psycopg[binary]
+pre-commit>=4.5.1
+psycopg[binary]>=3.3.3
+python-dotenv>=1.2.2
+sqlalchemy[asyncio]>=2.0.48
+asyncpg>=0.31.0
+pydantic-settings>=2.13.1
+pwdlib[argon2]>=0.3.0
+pyjwt>=2.12.1

@@ -4,7 +4,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from app.core.database import async_session_factory
+from app.core.database import AsyncSessionLocal
 from app.core.tenant_context import set_current_tenant_id
 from app.services.tenant_services import get_tenant_by_slug
 
@@ -20,7 +20,7 @@ class TenantResolverMiddleware(BaseHTTPMiddleware):
         # 2. JWT claim (for mobile/API clients without subdomains)
         # slug = request.state.jwt_claims.get("tenant_slug")
 
-        async with async_session_factory() as session:
+        async with AsyncSessionLocal() as session:
             tenant = await get_tenant_by_slug(session, slug)
 
         if not tenant or not tenant.is_active:

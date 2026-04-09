@@ -20,7 +20,12 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install black ruff mypy pydantic pydantic-settings
+          pip install black==24.3.0 ruff==0.4.4 mypy==1.10.0 pydantic pydantic-settings
+
+      - name: Run pre-commit
+        run: |
+          pip install pre-commit
+          pre-commit run --all-files
 
       - name: Run Black
         run: black --check --diff .
